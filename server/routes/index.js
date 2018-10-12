@@ -15,4 +15,6 @@ module.exports = (app) => {
   app.delete('/api/todos/:todoId', todosController.delete)
 
   app.post('/api/todos/:todoId/items', todoitemsController.create)
+  app.put('/api/todos/:todoId/items/:id', todoitemsController.update)
+  app.delete('/api/todos/:todoId/items/:id', todoitemsController.delete)
 }
