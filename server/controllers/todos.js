@@ -1,16 +1,25 @@
-const Todo = require("../models").Todo;
-const TodoItem = require("../models").TodoItem;
-
+const models = require("../models");
+const {Todo, TodoItem} = models;
+const {sequelize } = models;
 module.exports = {
 
   create(req, res){
     console.log(req.body);
     return Todo
-      .create({
-        title: req.body.title
+      .findOrCreate({
+        where: {
+          title: req.body.title
+        }
       })
-      .then(todo => res.status(201).send(todo))
-      .catch(error => res.status(400).send(error))
+      .spread( (user, created) => {
+        if (created) {
+          let x = createSchema1(req, res).then(val => (val)); // function
+          res.status(200).send(x)
+        } else {
+          res.status(400).send(`${req.body.title} already exists.`);
+        }
+       })
+      // .catch(error => res.status(400).send(error))
   },
 
   index(req, res){
@@ -83,4 +92,25 @@ module.exports = {
     })
   }
 
+}
+const createSchema1 = async (req, res) => {
+  console.log(req.body)
+  console.log(sequelize.createSchema)
+      return await sequelize.createSchema(req.body.title).then(async () => {
+        await ["Todo", "TodoItem"].forEach((currentItem) => {
+          console.log("currentItem", currentItem)
+          models[currentItem].schema(req.body.title).sync();
+        });
+        const ToDoDetail = {
+          title: req.body.title,
+        };
+        const todoSchema = Todo.schema(req.body.title);
+        todoSchema.create(ToDoDetail)
+          .then((loginData) => {
+            res.status(200).send(loginData);
+          })
+          .catch((err) => {
+            console.log('error :', err.message);
+          });
+      });
 }
