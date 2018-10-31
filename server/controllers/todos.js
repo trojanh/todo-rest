@@ -1,6 +1,12 @@
 const models = require("../models");
 const {Todo, TodoItem} = models;
 const {sequelize } = models;
+const assignSchema = async (req) => {
+  let todoId = req.params.todoId;
+  let todoSchema = await Todo.findById(todoId);
+  todoSchema = todoSchema.title;
+  return todoSchema;
+}
 module.exports = {
 
   create(req, res){
